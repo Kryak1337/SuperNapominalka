@@ -21,12 +21,16 @@
 
         <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,15,0">
             <TextBlock Text="Настройки подключения" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
             <TextBlock Text="SMTP Сервер:" FontSize="11" Margin="0,3,0,1"/>
             <TextBox x:Name="SmtpServerTextBox" Padding="4" Margin="0,0,0,8"/>
+
             <TextBlock Text="SMTP Порт:" FontSize="11" Margin="0,3,0,1"/>
             <TextBox x:Name="SmtpPortTextBox" Padding="4" Margin="0,0,0,8" Text="587"/>
+
             <TextBlock Text="Ваш Email (отправитель):" FontSize="11" Margin="0,3,0,1"/>
             <TextBox x:Name="SenderEmailTextBox" Padding="4" Margin="0,0,0,8"/>
+
             <TextBlock Text="Пароль приложения:" FontSize="11" Margin="0,3,0,1"/>
             <PasswordBox x:Name="AppPasswordBox" Padding="4" Margin="0,0,0,12"/>
 
@@ -55,10 +59,12 @@
 
             <StackPanel Grid.Row="0">
                 <TextBlock Text="Параметры напоминаний" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
-                <TextBlock Text="Email получателя:" FontSize="11" Margin="0,3,0,1"/>
+                <TextBlock Text="Резервный Email получателя (если нет в Excel):" FontSize="11" Margin="0,3,0,1"/>
                 <TextBox x:Name="TargetEmailTextBox" Padding="4" Margin="0,0,0,8"/>
+
                 <TextBlock Text="Шаблон текста ({ФИО} и {Дата}):" FontSize="11" Margin="0,3,0,1"/>
                 <TextBox x:Name="MessageTemplateTextBox" AcceptsReturn="True" Height="65" VerticalScrollBarVisibility="Auto" Padding="4" Margin="0,0,0,10"/>
+
                 <TextBlock Text="База данных сотрудников:" FontSize="11" FontWeight="Bold" Margin="0,3,0,3"/>
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>

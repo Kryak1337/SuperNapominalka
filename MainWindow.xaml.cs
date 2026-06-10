@@ -48,8 +48,9 @@ namespace SuperNapominalka
                 byte[] decryptedData = ProtectedData.Unprotect(data, null, DataProtectionScope.CurrentUser);
                 return Encoding.UTF8.GetString(decryptedData);
             }
-            catch { return ""; } 
+            catch { return ""; }
         }
+
         private string selectedFilePath = string.Empty;
         private readonly string configFileName = "config.json";
         private readonly string logFileName = "log.txt";
@@ -337,7 +338,6 @@ namespace SuperNapominalka
 
         private void OnAutoCheckTimerElapsed(object? sender, ElapsedEventArgs e)
         {
-
             _ = Task.Run(async () =>
             {
                 try
@@ -346,7 +346,6 @@ namespace SuperNapominalka
                         Log("Срабатывание таймера по расписанию. Начинаю скан базы...")));
 
                     await ExecuteCheckAndSendAsync(isManual: false);
-
 
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -413,7 +412,6 @@ namespace SuperNapominalka
             Log("Ручной запуск проверки базы данных...");
             CheckButton.IsEnabled = false;
 
-
             await ExecuteCheckAndSendAsync(isManual: true);
 
             CheckButton.IsEnabled = true;
@@ -429,7 +427,6 @@ namespace SuperNapominalka
                 Log("Проверка отменена: файл базы данных не задан или отсутствует.");
                 return;
             }
-
 
             string smtpServer = "";
             string senderEmail = "";
@@ -450,7 +447,7 @@ namespace SuperNapominalka
 
             if (!int.TryParse(portText, out int smtpPort) ||
                 string.IsNullOrEmpty(smtpServer) || string.IsNullOrEmpty(senderEmail) ||
-                string.IsNullOrEmpty(appPassword) || string.IsNullOrEmpty(targetEmail) || string.IsNullOrEmpty(template))
+                string.IsNullOrEmpty(appPassword) || string.IsNullOrEmpty(template))
             {
                 if (isManual) System.Windows.MessageBox.Show("Заполните настройки подключения перед выполнением проверки!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 Log("Проверка отменена: не все поля подключения заполнены.");
@@ -487,10 +484,11 @@ namespace SuperNapominalka
                     return;
                 }
 
-                if (!dt.Columns.Contains("ФИО") || !dt.Columns.Contains("Дата"))
+                // Изменено: Добавлена проверка на наличие колонки "Email"
+                if (!dt.Columns.Contains("ФИО") || !dt.Columns.Contains("Дата") || !dt.Columns.Contains("Email"))
                 {
-                    if (isManual) System.Windows.MessageBox.Show("Критическая ошибка: Столбцы 'ФИО' и 'Дата' не найдены!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Log("Критическая ошибка: В таблице Excel не найдены колонки 'ФИО' и 'Дата'.");
+                    if (isManual) System.Windows.MessageBox.Show("Критическая ошибка: Столбцы 'ФИО', 'Дата' или 'Email' не найдены!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Log("Критическая ошибка: В таблице Excel не найдены колонки 'ФИО', 'Дата' или 'Email'.");
                     return;
                 }
 
@@ -524,16 +522,32 @@ namespace SuperNapominalka
                             }
                         }
 
+                        // Изменено: Динамическое получение email из Excel
+                        string recipientEmail = row["Email"]?.ToString()?.Trim() ?? string.Empty;
+
+                        // Если email в строке пустой, используем адрес из настроек (как резервный)
+                        if (string.IsNullOrEmpty(recipientEmail))
+                        {
+                            recipientEmail = targetEmail;
+                        }
+
+                        if (string.IsNullOrEmpty(recipientEmail) || !recipientEmail.Contains("@"))
+                        {
+                            Log($"⚠️ Пропуск: Для {fio} не найден корректный Email ни в Excel, ни в настройках.");
+                            continue;
+                        }
+
                         string mailText = template
                             .Replace("{ФИО}", fio)
                             .Replace("{Дата}", expirationDate.ToString("dd.MM.yyyy"));
 
                         try
                         {
-                            await SendDynamicEmailAsync(smtpServer, smtpPort, senderEmail, appPassword, targetEmail, "Напоминание о приближающемся событии", mailText);
+                            // Изменено: Отправка идет на recipientEmail
+                            await SendDynamicEmailAsync(smtpServer, smtpPort, senderEmail, appPassword, recipientEmail, "Напоминание о приближающемся событии", mailText);
                             currentConfig.SentHistory[historyKey] = DateTime.Now;
                             sentCount++;
-                            Log($"📨 Письмо успешно отправлено для: {fio}.");
+                            Log($"📨 Письмо успешно отправлено для: {fio} на адрес {recipientEmail}.");
                         }
                         catch (Exception mailEx)
                         {
@@ -557,7 +571,6 @@ namespace SuperNapominalka
                 if (isManual) System.Windows.MessageBox.Show($"Ошибка выполнения проверки: \n{ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 else
                 {
-
                     _ = Dispatcher.BeginInvoke(new Action(() => {
                         StatusTextBlock.Text = $"❌ Ошибка автоматического сканирования.";
                     }));
