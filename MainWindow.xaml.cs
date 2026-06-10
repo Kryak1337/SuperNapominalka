@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using ExcelDataReader;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace SuperNapominalka
 {
@@ -32,6 +33,23 @@ namespace SuperNapominalka
 
     public partial class MainWindow : System.Windows.Window
     {
+        private string EncryptString(string plainText)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(plainText);
+            byte[] encryptedData = ProtectedData.Protect(data, null, DataProtectionScope.CurrentUser);
+            return Convert.ToBase64String(encryptedData);
+        }
+
+        private string DecryptString(string encryptedText)
+        {
+            try
+            {
+                byte[] data = Convert.FromBase64String(encryptedText);
+                byte[] decryptedData = ProtectedData.Unprotect(data, null, DataProtectionScope.CurrentUser);
+                return Encoding.UTF8.GetString(decryptedData);
+            }
+            catch { return ""; } 
+        }
         private string selectedFilePath = string.Empty;
         private readonly string configFileName = "config.json";
         private readonly string logFileName = "log.txt";
@@ -148,7 +166,7 @@ namespace SuperNapominalka
                         SenderEmailTextBox.Text = currentConfig.SenderEmail;
                         TargetEmailTextBox.Text = currentConfig.TargetEmail;
                         MessageTemplateTextBox.Text = currentConfig.MessageTemplate;
-                        AppPasswordBox.Password = currentConfig.EncryptedPassword;
+                        AppPasswordBox.Password = DecryptString(currentConfig.EncryptedPassword);
                         AutostartCheckBox.IsChecked = currentConfig.IsAutostartEnabled;
 
                         ScheduleModeComboBox.SelectedIndex = currentConfig.ScheduleMode;
@@ -206,7 +224,7 @@ namespace SuperNapominalka
                 currentConfig.SenderEmail = SenderEmailTextBox.Text.Trim();
                 currentConfig.TargetEmail = TargetEmailTextBox.Text.Trim();
                 currentConfig.MessageTemplate = MessageTemplateTextBox.Text;
-                currentConfig.EncryptedPassword = AppPasswordBox.Password;
+                currentConfig.EncryptedPassword = EncryptString(AppPasswordBox.Password);
                 currentConfig.ExcelFilePath = selectedFilePath;
                 currentConfig.IsAutostartEnabled = AutostartCheckBox.IsChecked ?? false;
                 currentConfig.ScheduleMode = mode;
