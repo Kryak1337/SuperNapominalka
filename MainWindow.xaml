@@ -1,0 +1,90 @@
+﻿<Window x:Class="SuperNapominalka.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SuperNapominalka"
+        mc:Ignorable="d"
+        Title="Напоминалка продлений ЭЦП" 
+        Icon="ICO.ico" Height="580" Width="850"
+        ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="340"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,15,0">
+            <TextBlock Text="Настройки подключения" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="SMTP Сервер:" FontSize="11" Margin="0,3,0,1"/>
+            <TextBox x:Name="SmtpServerTextBox" Padding="4" Margin="0,0,0,8"/>
+            <TextBlock Text="SMTP Порт:" FontSize="11" Margin="0,3,0,1"/>
+            <TextBox x:Name="SmtpPortTextBox" Padding="4" Margin="0,0,0,8" Text="587"/>
+            <TextBlock Text="Ваш Email (отправитель):" FontSize="11" Margin="0,3,0,1"/>
+            <TextBox x:Name="SenderEmailTextBox" Padding="4" Margin="0,0,0,8"/>
+            <TextBlock Text="Пароль приложения:" FontSize="11" Margin="0,3,0,1"/>
+            <PasswordBox x:Name="AppPasswordBox" Padding="4" Margin="0,0,0,12"/>
+
+            <Separator Margin="0,5,0,10"/>
+
+            <TextBlock Text="Расписание проверки" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+            <TextBlock Text="Режим проверки:" FontSize="11" Margin="0,0,0,2"/>
+            <ComboBox x:Name="ScheduleModeComboBox" Padding="4" Margin="0,0,0,8" SelectionChanged="ScheduleModeComboBox_SelectionChanged">
+                <ComboBoxItem Content="Интервал (каждые X часов)"/>
+                <ComboBoxItem Content="Фиксированное время (раз в день)"/>
+            </ComboBox>
+
+            <TextBlock x:Name="ScheduleValueLabel" Text="Значение:" FontSize="11" Margin="0,2,0,2"/>
+            <TextBox x:Name="ScheduleValueTextBox" Padding="4" Margin="0,0,0,12" ToolTip="Для интервала введите число (напр. 4). Для времени введите ЧЧ:ММ (напр. 09:00)"/>
+
+            <CheckBox x:Name="AutostartCheckBox" Content="Запускать автоматически при старте Windows" Margin="0,5,0,15" FontWeight="SemiBold"/>
+
+            <Button x:Name="SaveConfigButton" Content="💾 Сохранить настройки" Click="SaveConfigButton_Click" Padding="6" FontWeight="Bold" Background="#FFE1E1E1"/>
+        </StackPanel>
+
+        <Grid Grid.Column="1" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="Параметры напоминаний" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                <TextBlock Text="Email получателя:" FontSize="11" Margin="0,3,0,1"/>
+                <TextBox x:Name="TargetEmailTextBox" Padding="4" Margin="0,0,0,8"/>
+                <TextBlock Text="Шаблон текста ({ФИО} и {Дата}):" FontSize="11" Margin="0,3,0,1"/>
+                <TextBox x:Name="MessageTemplateTextBox" AcceptsReturn="True" Height="65" VerticalScrollBarVisibility="Auto" Padding="4" Margin="0,0,0,10"/>
+                <TextBlock Text="База данных сотрудников:" FontSize="11" FontWeight="Bold" Margin="0,3,0,3"/>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="ImportButton" Content="📁 Выбрать Excel" Click="ImportButton_Click" Padding="5" Width="110"/>
+                    <TextBlock x:Name="FilePathTextBlock" Grid.Column="1" Text="Файл не выбран" Foreground="Gray" FontStyle="Italic" Margin="10,5,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+                <Button x:Name="CheckButton" Content="🚀 Проверить вручную прямо сейчас" Click="CheckButton_Click" Height="32" FontSize="12" FontWeight="Bold" Background="#FF007ACC" Foreground="White" Margin="0,0,0,10"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1" Margin="0,5,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="Журнал действий:" FontSize="11" FontWeight="Bold" Margin="0,0,0,3"/>
+                <TextBox x:Name="LogTextBox" Grid.Row="1" Background="#FF252526" Foreground="#FFDCDCDC" FontFamily="Consolas" FontSize="11" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Padding="5"/>
+            </Grid>
+        </Grid>
+
+        <StatusBar Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0" Background="#FFF0F0F0" Padding="5">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusTextBlock" Text="Ожидание..." FontWeight="SemiBold" Foreground="#FF333333"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
